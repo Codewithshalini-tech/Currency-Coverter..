@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Currency Converter • React</title>
+  <link rel="stylesheet" href="./styles.css"/>
+  <!-- React via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const API = {
+      symbols: 'https://api.exchangerate.host/symbols',
+      latest: (base) => `https://api.exchangerate.host/latest?base=${encodeURIComponent(base)}`,
+      convert: (amount, from, to) =>
+        `https://api.exchangerate.host/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`
+    };
+
+    function useFetch(url, deps=[]) {
+      const [data, setData] = React.useState(null);
+      const [loading, setLoading] = React.useState(false);
+      const [error, setError] = React.useState(null);
+
+      React.useEffect(() => {
+        let cancelled = false;
+        async function run() {
+          if (!url) return;
+          setLoading(true); setError(null);
+          try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Network error');
+            const json = await res.json();
